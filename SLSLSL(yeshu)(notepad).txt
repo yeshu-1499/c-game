@@ -1,0 +1,411 @@
+/*---------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+>>->>->>->>->>->>->>->>->>->>->>PROJECT STARTS<<--<<-<<-<<-<<-<<-<<-<<-<<-<<-
+-----------------------------------------------------------------------------
+---------------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->HEADER FILES IN THE PROJECT<-<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/
+#include<iostream.h>
+#include<fstream.h>
+#include<string.h>
+#include<stdlib.h>
+#include<conio.h>
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->USER DEFINED FUNCTIONS<-<-<-<-<-<-<-<-<-<-<-<-<-<
+---------------------------------------------------------------------------*/
+int find_snake_ladder(int);
+void get_stack_1(int,int);
+void get_stack_2(int,int);
+void show_snake_ladder();
+void player_position();
+int ladder_found(int);
+int snake_found(int);
+int get_random_1();
+int get_random_2();
+void game_start();
+int play_1();
+int play_2();
+void intro();
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->USER DEFINED DATA MEMBERS<-<-<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/int w1,w2;
+int g1,g2,gd,ic,item,l,m1,m2,temp_1,temp_2;
+int k=0,p_1=1,p_2=1,p1=1,p2=1;
+int loser_stack[100],stack_1[100],stack_2[100];
+char cc,loser[20],name_1[20],name_2[20],winner[20];
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->->THE MAIN FUNCTION<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/
+void main()
+{
+	randomize();
+	ofstream f1,f2;
+	clrscr();
+	intro();
+	clrscr();
+	game_start();
+	clrscr();
+	f1.open("dice_1.dat",ios::out);
+	f2.open("dice_2.dat",ios::out);
+	z:
+	if(p_1<100&&p_2<100)
+	{
+		show_snake_ladder();
+		player_position();
+		p_1=play_1();
+		p_2=play_2();
+		f1<<p_1<<"\n";
+		get_stack_1(p_1,k);
+		f2<<p_2<<"\n";
+		get_stack_2(p_2,k);
+		k++;
+		goto z;
+	}
+	f1.close();
+	f2.close();
+	clrscr();
+	ifstream fa("dice_1.dat",ios::in);
+	ifstream fb("dice_2.dat",ios::in);
+	ofstream fc("loser.dat",ios::out);
+	if(p_1>=99)
+	{
+		cout<<"\n\n"<<name_1<<" won the game";
+		strcpy(winner,name_1);
+		strcpy(loser,name_2);
+		fb.seekg(0);
+		for(l=0;l<k;l++)
+		{
+			fb>>g1;
+			fc<<g1<<"\n";
+		}
+		for(l=0;l<k;l++)
+			loser_stack[l]=stack_2[l];
+	}
+	else if(p_2>=99)
+	{
+		cout<<"\n\n"<<name_2<<" won the game";
+		strcpy(winner,name_2);
+		strcpy(loser,name_1);
+		fa.seekg(0);
+		for(l=0;l<k;l++)
+		{
+			fa>>g2;
+			fc<<g2<<"\n";
+		}
+		for(l=0;l<k;l++)
+			loser_stack[l]=stack_1[l];
+	}
+	getch();
+	clrscr();
+	cout<<"Now do you want to view your history i.e your positions(y/n)";
+	cout<<endl;
+	cin>>cc;
+	if(cc=='y'||cc=='Y')
+	{
+
+		fa.seekg(0);
+		fb.seekg(0);
+		cout<<"\n\tPlayer 1:\tPlayer 2:\n";
+		for(l=0;l<k;l++)
+		{
+			fa>>m1;
+			fb>>m2;
+			cout<<"\t"<<m1<<"\t\t"<<m2<<"\n";
+		}
+		fa.close();
+		fb.close();
+		fc.close();
+	}
+	else if(cc=='n'||cc=='N')
+	{
+		cout<<"\nOK then Bye";
+		goto a;
+	}
+	cout<<"\n"<<winner<<" congragulations, you may leave";
+	getch();
+	cout<<endl<<loser<<" don't worry for loosing your game";
+	cout<<" you may now play with c++ data structure and files with ";
+	cout<<"the values of your game positon as your reference";
+	cout<<"\nThe values are stored in an array such as:\n";
+	for(l=0;l<k;l++)
+		cout<<loser_stack[l]<<"\t";
+	getch();
+	clrscr();
+	y:
+	cout<<"\nDecide\n1.Modify the values using stack";
+	cout<<"\n2.View the file that stores the original value";
+	cout<<"\n3.Exit\n";
+	cin>>ic;
+	if(ic==1)
+	{
+		cout<<"\nDo you want to delete any item(y/n):";
+		cin>>cc;
+		if(cc=='y'||cc=='Y')
+		{
+			x:
+			cout<<"\nItem Deleted";
+			cout<<"\nStack Now is:\n";
+			k-=1;
+			for(l=0;l<k;l++)
+				cout<<loser_stack[l]<<"\t";
+			cout<<"\n1.Do you want to delete more";
+			cout<<"\n2.Do you want to add more\n";
+			cin>>ic;
+			if(ic==1)
+				goto x;
+			if(ic==2)
+			{
+				d:
+				cout<<"\nEnter the element to be added\t";
+				cin>>item;
+				loser_stack[k]=item;
+				k+=1;
+				cout<<"\nStack now is:\n";
+				for(l=0;l<k;l++)
+					cout<<loser_stack[l]<<"\t";
+					cout<<"\nDo you want to add more elements(y/n)\t";
+				cin>>cc;
+				if(cc=='y'||cc=='Y')
+					goto d;
+				if(cc=='n'||cc=='N')
+					goto y;
+			}
+		}
+	}
+	if(ic==2)
+	{
+		cout<<"\nThe values are also stored in a file. They read as:";
+		cout<<endl;
+		ifstream fd;
+		fd.open("loser.dat",ios::in);
+		fd.seekg(0);
+		for(l=0;l<k;l++)
+		{
+			fd>>gd;
+			cout<<gd<<"\t";
+		}
+		fd.close();
+		goto y;
+	}
+	if(ic==3)
+		goto a;
+	if(ic!=1&&ic!=2&&ic!=3)
+		goto y;
+	a:
+	cout<<"\n\t\t\t\tThanks for playing";
+	getch();
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->INTRODUCTION FUNCTION<-<-<-<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/
+void intro()
+{
+cout<<"\n";
+	cout<<"                        *                       \n";
+	cout<<"                      * * *                     \n";
+	cout<<"                    * * * * *                   \n";
+	cout<<"                  * * * * * * *                 \n";
+	cout<<"                * * * * * * * * *               \n";
+	cout<<"              * * * * * * * * * * *             \n";
+	cout<<"            * * * * * * * * * * * * *           \n";
+	cout<<"          * * * * * * * * * * * * * * *            CREATER: L YESHWANTH NATHAN\n";
+	cout<<"        * * * * *               * * * * *       \n";
+	cout<<"      * * * * * *   S N A K E   * * * * * *     \n";
+	cout<<"    * * * * * * *               * * * * * * *   \n";
+	cout<<"  * * * * * * * * *   A N D   * * * * * * * * * \n";
+	cout<<"    * * * * * * *               * * * * * * *   \n";
+	cout<<"      * * * * * *  L A D D E R  * * * * * *     \n";
+	cout<<"        * * * * *               * * * * *       \n";
+	cout<<"          * * * * * * * * * * * * * * *            ;
+	cout<<"            * * * * * * * * * * * * *           \n";
+	cout<<"              * * * * * * * * * * *             \n";
+	cout<<"                * * * * * * * * *               \n";
+	cout<<"                  * * * * * * *                 \n";
+	cout<<"                    * * * * *                   \n";
+	cout<<"                      * * *                     \n";
+	cout<<"                        *                       \n";
+	getch();
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->->->->GAME STARTS<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/
+void game_start()
+{
+	cout<<"\nHello Player 1, may I know your name:\t";
+	cin>>name_1;
+	cout<<"\nHello Player 2, may I know your name:\t";
+	cin>>name_2;
+	getch();
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->SHOW SNAKES AND LADDERS POSITION<-<-<-<-<-<-<-<-<-<-<
+---------------------------------------------------------------------------*/
+void show_snake_ladder()
+{
+	clrscr();
+	cout<<"----------------------------------------------------------\n";
+	cout<<"\tSnake Position            Laddder Position\n";
+	cout<<"\t37-1                      3-60\n";
+	cout<<"\t25-5                      6-77\n";
+	cout<<"\t47-12                     11-70\n";
+	cout<<"\t65-59                     35-55\n";
+	cout<<"\t87-54                     63-96\n";
+	cout<<"\t92-69                     68-93\n";
+	cout<<"\t99-61                     82-97\n";
+	cout<<"----------------------------------------------------------\n";
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->1st RANDOMIZE FUNCTION<-<-<-<-<-<-<-<-<-<-<-<-<-<
+---------------------------------------------------------------------------*/
+int get_random_1()
+{
+	int z;
+	z=random(6)+1;
+	return z;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->2nd RANDOMIZE FUNCTION<-<-<-<-<-<-<-<-<-<-<-<-<-<
+---------------------------------------------------------------------------*/
+int get_random_2()
+{
+	int y;
+	y=random(6)+1;
+	return y;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->->->PLAYER POSITION<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/
+void player_position()
+{
+	cout<<"\nThe position of "<<name_1<<" is:"<<p_1;
+	cout<<"\nThe position of "<<name_2<<" is:"<<p_2;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->->->PLAYER 1 ROLLS<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<
+---------------------------------------------------------------------------*/
+int play_1()
+{
+	cout<<"\n\n"<<name_1<<", press any key to roll the dice";
+	getch();
+	temp_1=get_random_1();
+	p1+=temp_1;
+	cout<<endl<<name_1<<", your dice reads "<<temp_1;
+	p1=find_snake_ladder(p1);
+	cout<<"\nNow "<<name_1<<" is at position: "<<p1;
+	return p1;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->->->->PLAYER 2 ROLLS<-<-<-<-<-<-<-<-<-<-<-<-<-<-<
+---------------------------------------------------------------------------*/
+int play_2()
+{
+
+	cout<<"\n\n"<<name_2<<", press any key to roll the dice";
+	getch();
+	temp_2=get_random_2();
+	p2+=temp_2;
+	cout<<endl<<name_2<<", your dice reads "<<temp_2;
+	p2=find_snake_ladder(p2);
+	cout<<"\nNow "<<name_2<<" is at position: "<<p2;
+	getch();
+	return p2;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->FINDING SNAKE AND LADDER<-<-<-<-<-<-<-<-<-<-<-<-<-<
+---------------------------------------------------------------------------*/
+int find_snake_ladder(int po)
+{
+	if(po==25||po==37||po==47||po==65||po==87||po==92||po==99)
+		po=snake_found(po);
+	if(po==3 ||po==6 ||po==11||po==35||po==63||po==68||po==82)
+		po=ladder_found(po);
+	return po;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->->->->SNAKE FOUND<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/
+int snake_found(int ps)
+{
+	cout<<"\nOops!! Snake found at position "<<ps<<".";
+	switch(ps)
+	{
+		case 25:ps=5;
+			break;
+		case 37:ps=1;
+			break;
+		case 47:ps=12;
+			break;
+		case 65:ps=59;
+			break;
+		case 87:ps=54;
+			break;
+		case 92:ps=69;
+			break;
+		case 99:ps=61;
+			break;
+	}
+	return ps;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->->->->->->->LADDER FOUND<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<
+----------------------------------------------------------------------------*/
+int ladder_found(int pl)
+{
+	cout<<"\nHurray!! ladder found at position "<<pl<<".";
+	switch(pl)
+	{
+		case 3 :pl=60;
+			break;
+		case 6 :pl=77;
+			break;
+		case 11:pl=70;
+			break;
+		case 35:pl=55;
+			break;
+		case 63:pl=96;
+			break;
+		case 68:pl=93;
+			break;
+		case 82:pl=97;
+			break;
+	}
+	return pl;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->STORE VALUES OF PLAYER 1 IN STACK<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/
+void get_stack_1(int a,int b)
+{
+	stack_1[b]=a;
+}
+
+/*---------------------------------------------------------------------------
+->->->->->->->->->->->STORE VALUES OF PLAYER 2 IN STACK<-<-<-<-<-<-<-<-<-<-<-
+---------------------------------------------------------------------------*/
+void get_stack_2(int a,int b)
+{
+	stack_2[b]=a;
+}
+
+/*----------------------------------------------------------------------------
+------------------------------------------------------------------------------
+->>->>->>->>->->>->>->>->>->>->>PROJECT ENDS<<-<<-<<-<<-<<-<<-<<-<<-<<-<<-<<-
+------------------------------------------------------------------------------
+----------------------------------------------------------------------------*/
